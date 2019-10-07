@@ -37,12 +37,14 @@ def on_log(client, userdata, level, buf):
 def on_message(client, userdata, message):
     global moist, temp, temp_plt, moist_plt, fig
     if message.topic.endswith('moist'):
-        print("message received ", str(message.payload.decode("utf-8")))
+        moist_reading = message.payload.decode("utf-8")
+        print("message received ", str(moist_reading))
         print("message topic=", message.topic)
         print("message qos=", message.qos)
         print("message retain flag=", message.retain)
         print(datetime.utcnow())
-        add_doc(message)
+        if int(moist_reading) > 0:
+            add_doc(message)
     elif message.topic.endswith('temp'):
         print("message received ", str(message.payload.decode("utf-8")))
         print("message topic=", message.topic)

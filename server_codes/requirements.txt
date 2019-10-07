@@ -1,4 +1,2 @@
 elasticsearch
 paho-mqtt
-numpy
-matplotlib
