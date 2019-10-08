@@ -24,7 +24,8 @@ def add_doc(msg):
         "timestamp": datetime.utcnow()
     }
     if msg.topic.endswith('moist'):
-        body['moisture'] =str(msg.payload.decode("utf-8"))
+        body['moisture'] = analog_to_percent(str(msg.payload.decode("utf-8")))
+        body['raw_moist'] = str(msg.payload.decode("utf-8"))
     elif msg.topic.endswith('temp'):
         body['raw_temp'] = str(msg.payload.decode("utf-8"))
     es.index(index=index, body=body)
@@ -49,8 +50,12 @@ def on_message(client, userdata, message):
         print("message received ", str(message.payload.decode("utf-8")))
         print("message topic=", message.topic)
         add_doc(message)
-    fig.canvas.draw()
 
+
+def analog_to_percent(analog):
+    min_reading = 1750
+    stepper = 35
+    return 100 - (int(analog) - min_reading) / stepper
 
 client = mqtt.Client('receiver')
 client.connect(mqtt_server)
