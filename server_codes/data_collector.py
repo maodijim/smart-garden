@@ -1,11 +1,12 @@
 import paho.mqtt.client as mqtt
 from elasticsearch import Elasticsearch
 from datetime import datetime
+import configparser
 import traceback
 import json
 
-mqtt_server = 'localhost' #localhost
-elastic_server = 'localhost' #localhost
+configs = configparser.ConfigParser()
+configs.read('configs.conf')
 
 
 class DataPoint:
@@ -14,12 +15,13 @@ class DataPoint:
         self.data_time = []
 
 
-es = Elasticsearch(hosts=[{"host": elastic_server, "port": 9200}])
+es = Elasticsearch(hosts=[{"host": configs['default']['elastic_server'],
+                           "port": int(configs['default']['elastic_server_port'])}])
 # es.indices.create(index="soil-sensor", ignore=400)
 
 
 def add_doc(msg):
-    index = "soil-sensor"
+    """ Save sensor data to elasticsearch """
     device_id = msg.topic.split('/')[0]
     body = {
         "device_id": device_id,
@@ -55,14 +57,16 @@ def add_doc(msg):
             body['ip_address'] = result.get("ip_addr", '0.0.0.0')
         except:
             traceback.print_exc()
-    es.index(index=index, body=body)
+    es.index(index=configs['default']['index_name'], body=body)
 
 
 def on_log(client, userdata, level, buf):
+    """ MQTT log handler """
     print("log: ", buf)
 
 
 def on_message(client, userdata, message):
+    """ MQTT message handler """
     global moist, temp, temp_plt, moist_plt, fig
     reading = message.payload.decode("utf-8")
     print("message received ", str(reading))
@@ -82,12 +86,14 @@ def on_message(client, userdata, message):
 
 
 def analog_to_percent(analog):
+    """ Convert raw reading from moisture sensor to percentage"""
     min_reading = 1750
     stepper = 32
     return 100 - (int(analog) - min_reading) / stepper
 
+
 client = mqtt.Client('data_receiver')
-client.connect(mqtt_server)
+client.connect(configs['default']['mqtt_server'], int(configs['default']['mqtt_port']))
 client.on_log = on_log
 client.on_message = on_message
 client.subscribe([("+", 0), ("sensor_data/+", 0)])
