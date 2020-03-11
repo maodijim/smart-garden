@@ -35,7 +35,7 @@ def add_doc(msg):
     elif msg.topic.startswith('sensor_data'):
         body['device_id'] = msg.topic.split('/')[1]
         try:
-            """ {"soil_moist": "", "raw_temp": "", "air_hum": "", "air_temp": "", "ip_addr": ""} """
+            """ {"soil_moist": "", "raw_temp": "", "air_hum": "", "air_temp": "", "ip_addr": "", "device_name": ""} """
             result = json.loads(str(msg.payload.decode("utf-8")))
             body['moisture'] = analog_to_percent(result.get("soil_moist", 0))
             body['raw_moisture'] = result.get("soil_moist", 0)
@@ -43,6 +43,7 @@ def add_doc(msg):
             body['air_humidity'] = result.get("air_hum", 0)
             body['air_temp'] = result.get("air_temp", 0)
             body['ip_address'] = result.get("ip_addr", '0.0.0.0')
+            body['device_name'] = result.get("device_name", 'New Device')
         except:
             traceback.print_exc()
     else:
