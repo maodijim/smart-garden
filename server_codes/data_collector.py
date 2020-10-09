@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 import paho.mqtt.client as mqtt
@@ -8,7 +9,7 @@ import configparser
 import traceback
 import json
 
-from server_codes.alert import AlertAction
+from alert import AlertAction
 
 
 class DataPoint:
@@ -103,7 +104,7 @@ logging.basicConfig(
 )
 
 configs = configparser.ConfigParser()
-configs.read('configs.conf')
+configs.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configs.conf'))
 
 es = Elasticsearch(hosts=[{"host": configs['default']['elastic_server'],
                            "port": int(configs['default']['elastic_server_port'])}])
