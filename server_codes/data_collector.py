@@ -1,3 +1,6 @@
+import logging
+import sys
+
 import paho.mqtt.client as mqtt
 from elasticsearch import Elasticsearch
 from datetime import datetime
@@ -5,19 +8,13 @@ import configparser
 import traceback
 import json
 
-configs = configparser.ConfigParser()
-configs.read('configs.conf')
+from server_codes.alert import AlertAction
 
 
 class DataPoint:
     def __init__(self):
         self.data = []
         self.data_time = []
-
-
-es = Elasticsearch(hosts=[{"host": configs['default']['elastic_server'],
-                           "port": int(configs['default']['elastic_server_port'])}])
-# es.indices.create(index="soil-sensor", ignore=400)
 
 
 def add_doc(msg):
@@ -59,6 +56,10 @@ def add_doc(msg):
         except:
             traceback.print_exc()
     es.index(index=configs['default']['index_name'], body=body)
+    try:
+        alerter.check_alert(body.get('device_id'), body.get("device_name", "Unknown Device"), body)
+    except:
+        logging.error(traceback.format_exc())
 
 
 def on_log(client, userdata, level, buf):
@@ -92,6 +93,30 @@ def analog_to_percent(analog):
     stepper = 32
     return 100 - (int(analog) - min_reading) / stepper
 
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+configs = configparser.ConfigParser()
+configs.read('configs.conf')
+
+es = Elasticsearch(hosts=[{"host": configs['default']['elastic_server'],
+                           "port": int(configs['default']['elastic_server_port'])}])
+# es.indices.create(index="soil-sensor", ignore=400)
+
+alerter = AlertAction(
+    configs['email']['smtp_server'],
+    configs['email']['email_username'],
+    configs['email']['email_password'],
+    configs['alert'],
+    configs['email'],
+    smtp_port=int(configs['email']['smtp_port'])
+)
 
 client = mqtt.Client('data_receiver')
 client.connect(configs['default']['mqtt_server'], int(configs['default']['mqtt_port']))
