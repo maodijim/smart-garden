@@ -59,7 +59,7 @@ class AlertAction:
         for field in self.alert_fields:
             logging.info("checking alert field: {}".format(field))
             if metrics.get(field, None):
-                if int(metrics.get(field)) > self.threshold and time.time() - self.alert_grace_secs > self.last_alert.get(device_id, time.time()):
+                if int(metrics.get(field)) > self.threshold and time.time() - self.alert_grace_secs >= self.last_alert.get(device_id, time.time() - self.alert_grace_secs):
                     logging.info("alert field {} meet threshold {}".format(field, self.threshold))
                     self.send_email(
                         self.smtp_user,
