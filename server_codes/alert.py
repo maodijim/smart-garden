@@ -25,6 +25,8 @@ class AlertAction:
         self.alert_settings = alert_settings
         self.email_settings = email_settings
         self.smtp_user = smtp_user
+        self.smtp_server = smtp_server
+        self.smtp_port = smtp_port
         self.__smtp_pass = smtp_pass
         self.threshold = int(alert_settings.get(AlertConf.ALERT_THRESHOLD, 0))
         self.device_ids = alert_settings.get(AlertConf.ALERT_DEVICE_IDS, "").split(",")
@@ -40,6 +42,8 @@ class AlertAction:
     def smtp_connect(self):
         try:
             self.server.login(self.smtp_user, self.__smtp_pass)
+        except smtplib.SMTPServerDisconnected:
+            self.server.connect(self.smtp_server, self.smtp_port)
         except Exception as e:
             logging.error(e)
 
