@@ -44,6 +44,7 @@ class AlertAction:
             self.server.login(self.smtp_user, self.__smtp_pass)
         except smtplib.SMTPServerDisconnected:
             self.server.connect(self.smtp_server, self.smtp_port)
+            self.server.login(self.smtp_user, self.__smtp_pass)
         except Exception as e:
             logging.error(e)
 
