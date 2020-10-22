@@ -26,19 +26,18 @@ class AlertAction:
         self.email_settings = email_settings
         self.smtp_user = smtp_user
         self.__smtp_pass = smtp_pass
-        self.ssl = ssl
         self.threshold = int(alert_settings.get(AlertConf.ALERT_THRESHOLD, 0))
         self.device_ids = alert_settings.get(AlertConf.ALERT_DEVICE_IDS, "").split(",")
         self.alert_fields = alert_settings.get(AlertConf.ALERT_FIELDS, "").split(",")
         self.alert_grace_secs = int(alert_settings.get(AlertConf.ALERT_GRACE_SECS, 100))
         self.server = smtplib.SMTP(smtp_server, smtp_port)
+        if ssl:
+            self.server.starttls()
         self.last_alert = {}
         self.subject = "Notice: Device Id {}, Device Name {} alert trigger"
         self.body = """ At {alert_time} {device_name}: {field} reach {val} above threshold {threshold} """
 
     def smtp_connect(self):
-        if self.ssl:
-            self.server.starttls()
         try:
             self.server.login(self.smtp_user, self.__smtp_pass)
         except Exception as e:
