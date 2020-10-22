@@ -78,7 +78,7 @@ class AlertAction:
                             threshold=self.threshold
                         )
                     )
-                    self.server.close()
+                    self.server.quit()
                 elif time.time() - self.alert_grace_secs <= self.last_alert.get(device_id, time.time()):
                     logging.info("Alert Grace Period not meet for device {}".format(device_id))
             else:
