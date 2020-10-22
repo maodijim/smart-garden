@@ -37,7 +37,6 @@ class AlertAction:
         self.body = """ At {alert_time} {device_name}: {field} reach {val} above threshold {threshold} """
 
     def smtp_connect(self):
-        self.server.ehlo()
         if self.ssl:
             self.server.starttls()
         try:
