@@ -25,21 +25,25 @@ class AlertAction:
         self.alert_settings = alert_settings
         self.email_settings = email_settings
         self.smtp_user = smtp_user
+        self.__smtp_pass = smtp_pass
+        self.ssl = ssl
         self.threshold = int(alert_settings.get(AlertConf.ALERT_THRESHOLD, 0))
         self.device_ids = alert_settings.get(AlertConf.ALERT_DEVICE_IDS, "").split(",")
         self.alert_fields = alert_settings.get(AlertConf.ALERT_FIELDS, "").split(",")
         self.alert_grace_secs = int(alert_settings.get(AlertConf.ALERT_GRACE_SECS, 100))
         self.server = smtplib.SMTP(smtp_server, smtp_port)
-        self.server.ehlo()
-        if ssl:
-            self.server.starttls()
-        try:
-            self.server.login(smtp_user, smtp_pass)
-        except Exception as e:
-            logging.error(e)
         self.last_alert = {}
         self.subject = "Notice: Device Id {}, Device Name {} alert trigger"
         self.body = """ At {alert_time} {device_name}: {field} reach {val} above threshold {threshold} """
+
+    def smtp_connect(self):
+        self.server.ehlo()
+        if self.ssl:
+            self.server.starttls()
+        try:
+            self.server.login(self.smtp_user, self.__smtp_pass)
+        except Exception as e:
+            logging.error(e)
 
     def check_alert(self, device_id, device_name, metrics):
         """
@@ -61,6 +65,7 @@ class AlertAction:
             if metrics.get(field, None):
                 if int(metrics.get(field)) > self.threshold and time.time() - self.alert_grace_secs >= self.last_alert.get(device_id, time.time() - self.alert_grace_secs):
                     logging.info("alert field {} meet threshold {}".format(field, self.threshold))
+                    self.smtp_connect()
                     self.send_email(
                         self.smtp_user,
                         self.email_settings['send_to'],
@@ -73,6 +78,7 @@ class AlertAction:
                             threshold=self.threshold
                         )
                     )
+                    self.server.close()
                 elif time.time() - self.alert_grace_secs <= self.last_alert.get(device_id, time.time()):
                     logging.info("Alert Grace Period not meet for device {}".format(device_id))
             else:
