@@ -3,6 +3,7 @@ import logging
 import sys
 import time
 import datetime
+from email.MIMEText import MIMEText
 
 logging.basicConfig(
     level=logging.INFO,
@@ -98,6 +99,6 @@ Subject: {}
         )
         try:
             logging.info("Sending alert email to {}".format(send_to))
-            self.server.sendmail(send_from, send_to, email_text)
+            self.server.sendmail(send_from, filter(None, send_to.split(",")), email_text)
         except Exception as e:
             logging.error("Failed to send email: {}".format(e))
