@@ -3,7 +3,6 @@ import logging
 import sys
 import time
 import datetime
-from email.MIMEText import MIMEText
 
 logging.basicConfig(
     level=logging.INFO,
