@@ -98,6 +98,6 @@ Subject: {}
         )
         try:
             logging.info("Sending alert email to {}".format(send_to))
-            self.server.sendmail(send_from, filter(None, send_to.split(",")), email_text)
+            self.server.sendmail(send_from, list(filter(None, send_to.split(","))), email_text)
         except Exception as e:
             logging.error("Failed to send email: {}".format(e))
