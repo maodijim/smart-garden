@@ -21,5 +21,11 @@ docker volume create kibana
 ```bash
 pip install rshell
 rshell -p /dev/cu.SLAB_USBtoUART
+
+# For Mac OS 11 (big sur) run
+pip install --upgrade  pyserial
+rshell -p /dev/cu.usbserial-0001
 ```
+cd esp/
+cp * /pyboard
 cd /pyboard
