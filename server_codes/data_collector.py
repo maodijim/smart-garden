@@ -120,7 +120,15 @@ alerter = AlertAction(
 )
 
 client = mqtt.Client('data_receiver')
-client.connect(configs['default']['mqtt_server'], int(configs['default']['mqtt_port']))
+username = configs['default']['mqtt_user']
+user_pass = configs["default"]["mqtt_pass"]
+if username != "" and  user_pass != "":
+    client.username_pw_set(username, user_pass)
+
+client.connect(
+    configs['default']['mqtt_server'],
+    int(configs['default']['mqtt_port']),
+)
 client.on_log = on_log
 client.on_message = on_message
 client.subscribe([("+", 0), ("sensor_data/+", 0)])
