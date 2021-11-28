@@ -59,7 +59,10 @@ def add_doc(msg):
             body['ip_address'] = result.get("ip_addr", '0.0.0.0')
         except:
             traceback.print_exc()
-    es.index(index=configs['default']['index_name'], body=body)
+    try:
+        es.index(index=configs['default']['index_name'], body=body)
+    except:
+        logging.error(traceback.format_exc())
     try:
         alerter.check_alert(body.get('device_id'), body.get("device_name", "Unknown Device"), body)
     except:
