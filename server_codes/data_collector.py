@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 import sys
@@ -20,6 +21,8 @@ class DataPoint:
 
 def add_doc(msg):
     """ Save sensor data to elasticsearch """
+    if not msg.topic.startswith("sensor_data/"):
+        return
     device_id = msg.topic.split('/')[0]
     body = {
         "device_id": device_id,
@@ -103,8 +106,15 @@ logging.basicConfig(
     ]
 )
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--config-path", help="Absolute path to the config file")
+args = parser.parse_args()
+
 configs = configparser.ConfigParser()
-configs.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configs.conf'))
+if args.config_path:
+    configs.read(args.config_path)
+else:
+    configs.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configs.conf'))
 
 es = Elasticsearch(hosts=[{"host": configs['default']['elastic_server'],
                            "port": int(configs['default']['elastic_server_port'])}])
@@ -119,10 +129,14 @@ alerter = AlertAction(
     smtp_port=int(configs['email']['smtp_port'])
 )
 
-client = mqtt.Client('data_receiver')
-username = configs['default']['mqtt_user']
-user_pass = configs["default"]["mqtt_pass"]
-if username != "" and  user_pass != "":
+mqtt_client_name = "data_receiver"
+if configs["default"].get("mqtt_client", "") != "":
+    mqtt_client_name = configs["default"]["mqtt_client"]
+
+client = mqtt.Client(mqtt_client_name)
+username = configs['default'].get('mqtt_user', '')
+user_pass = configs["default"].get("mqtt_pass", "")
+if username != "" and user_pass != "":
     client.username_pw_set(username, user_pass)
 
 client.connect(
