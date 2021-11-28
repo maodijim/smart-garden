@@ -17,9 +17,9 @@ docker volume create elasticsearch
 docker volume create kibana
 ```
 
-### Connect to the board using rshell or uPyCraft
+### Connect to the board using rshell or uPyCraft or ampy
 ```bash
-pip install rshell
+pip install rshell adafruit-ampy
 rshell -p /dev/cu.SLAB_USBtoUART
 
 # For Mac OS 11 (big sur) run
@@ -28,4 +28,26 @@ rshell -p /dev/cu.usbserial-0001
 cd esp/
 cp * /pyboard
 cd /pyboard
+
+# only do this the first time when setup
+ampy --port /dev/cu.SLAB_USBtoUART put configs /
+# only do this the first time when setup
+
+ampy --port /dev/cu.SLAB_USBtoUART put main.py main.py
+ampy --port /dev/cu.SLAB_USBtoUART put start.py start.py
+ampy --port /dev/cu.SLAB_USBtoUART put wifi_utils.py wifi_utils.py
+ampy --port /dev/cu.SLAB_USBtoUART put boot.py boot.py
+ampy --port /dev/cu.SLAB_USBtoUART put microWebSocket.py microWebSocket.py
+ampy --port /dev/cu.SLAB_USBtoUART put microWebSrv.py microWebSrv.py
+ampy --port /dev/cu.SLAB_USBtoUART put microWebTemplate.py microWebTemplate.py
+ampy --port /dev/cu.SLAB_USBtoUART put ver.py ver.py
+ampy --port /dev/cu.SLAB_USBtoUART put umqtt /
+ampy --port /dev/cu.SLAB_USBtoUART put lib /
+ampy --port /dev/cu.SLAB_USBtoUART put www /
+
+```
+
+### Run Code for testing
+```
+ampy --port /dev/cu.SLAB_USBtoUART run main.py
 ```
