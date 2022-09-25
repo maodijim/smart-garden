@@ -1,0 +1,24 @@
+[default]
+mqtt_server = "localhost"
+mqtt_port = 1883
+mqtt_user = ""
+mqtt_pass = ""
+elastic_server = "http://localhost:9200"
+index_name = "soil-sensor-alias"
+
+[alert]
+# comma separate device ids
+alert_device_ids = ""
+# available actions: email
+alert_action = "email"
+# comma separate field names
+alert_fields = "moisture"
+alert_threshold = 90
+alert_grace_period_secs = 10
+
+[email]
+smtp_server = "smtp.gmail.com"
+smtp_port = 587
+email_username = ""
+email_password = ""
+send_to = ""

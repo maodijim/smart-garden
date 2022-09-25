@@ -1,0 +1,14 @@
+[Unit]
+Description=Foo
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/etc/data_collector/data_collector.pid
+ExecStart=data_collector --config-file /etc/data_collector/data_collector.conf
+Restart=always
+RestartSec=10
+WorkingDirectory=/etc/data_collector/
+
+[Install]
+WantedBy=multi-user.target
