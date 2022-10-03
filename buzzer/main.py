@@ -42,7 +42,11 @@ def read_soil_sensor(pin_num):
     return adc.read()
 
 
-if __name__ == '__main__':
+def is_almost_full(soil_reading):
+    return soil_reading < 2000
+
+
+def main():
     while True:
         soil_reading = read_soil_sensor(32)
         log.info('soil sensor value: {}'.format(soil_reading))
@@ -52,4 +56,12 @@ if __name__ == '__main__':
             play_nokia(tempo=tempo)
             time.sleep(2)
             play_nokia(tempo=tempo)
-        deepsleep(120*1000)
+        if is_almost_full(soil_reading):
+            log.info('soil is almost full')
+            deepsleep(60 * 1000)
+        else:
+            deepsleep(900 * 1000)
+
+
+if __name__ == '__main__':
+    main()
