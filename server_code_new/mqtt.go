@@ -78,10 +78,10 @@ func NewMqttClients(conf Configs) (map[string]mqtt.Client, []error) {
 		opts.SetAutoReconnect(true)
 		opts.OnConnect = subscribeOnConnect
 		opts.OnConnectionLost = func(client mqtt.Client, err error) {
-			log.Warning("Connection lost for mqtt server %s: %s", key, err)
+			log.Warningf("Connection lost for mqtt server %s: %s", key, err)
 		}
 		opts.OnReconnecting = func(client mqtt.Client, opts *mqtt.ClientOptions) {
-			log.Warning("Reconnecting for mqtt server %s", key)
+			log.Warningf("Reconnecting for mqtt server %s", key)
 		}
 		if mqttServer.MqttUser != "" && mqttServer.MqttPass != "" {
 			opts.SetUsername(mqttServer.MqttUser)
